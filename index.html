@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>A Special Surprise for You ✨</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+            --sar: env(safe-area-inset-right);
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Plus Jakarta Sans", sans-serif;
+            background: linear-gradient(135deg, #180b12 0%, #2a081a 35%, #4c0519 70%, #881337 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            padding-top: max(1rem, var(--sat));
+            padding-bottom: max(1rem, var(--sab));
+            padding-left: max(1rem, var(--sal));
+            padding-right: max(1rem, var(--sar));
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 1.5s ease-in-out;
+        }
+
+        body.revealed {
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 35%, #fbcfe8 70%, #f472b6 100%);
+        }
+
+        html {
+            height: -webkit-fill-available;
+        }
+
+        .handwritten {
+            font-family: 'Caveat', cursive;
+        }
+
+        .cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Floating Background Particles */
+        .bg-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            will-change: transform, opacity;
+            animation: floatUp 7s infinite cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translate3d(0, 105vh, 0) scale(0.7) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.7;
+            }
+            85% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translate3d(0, -10vh, 0) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .letter-paper {
+            background: rgba(255, 252, 245, 0.95);
+            box-shadow: inset 0 0 15px rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 114, 182, 0.25);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: springIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes springIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.92); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .pulse-heart {
+            animation: heartBeat 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.12); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.12); }
+            70% { transform: scale(1); }
+        }
+
+        /* Theatre Stage Reveal Elements */
+        #theaterStage {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #090306;
+            transition: opacity 1.2s ease-in-out, visibility 1.2s;
+        }
+
+        .curtain-panel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 52%;
+            background: linear-gradient(90deg, #28020a 0%, #4a0414 25%, #7f1d1d 50%, #4a0414 75%, #1d0207 100%);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9) inset;
+            transition: transform 1.8s cubic-bezier(0.77, 0, 0.175, 1);
+            will-change: transform;
+            z-index: 52;
+        }
+
+        .curtain-left {
+            left: 0;
+            border-right: 3px solid rgba(251, 191, 36, 0.4);
+            background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 30px, transparent 30px, transparent 60px);
+        }
+
+        .curtain-right {
+            right: 0;
+            border-left: 3px solid rgba(251, 191, 36, 0.4);
+            background-image: repeating-linear-gradient(90deg, transparent 0px, transparent 30px, rgba(0,0,0,0.3) 30px, rgba(0,0,0,0.3) 60px);
+        }
+
+        /* Stage Valance / Top Swag Curtain */
+        .stage-valance {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(180deg, #2d040e 0%, #6b0d23 60%, transparent 100%);
+            z-index: 54;
+            border-bottom: 2px solid rgba(251, 191, 36, 0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            transition: transform 1.5s ease-in-out;
+        }
+
+        /* Spotlight Effect */
+        .spotlight {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 230, 200, 0.28) 0%, rgba(244, 114, 182, 0.08) 35%, rgba(0, 0, 0, 0.92) 75%);
+            z-index: 53;
+            pointer-events: none;
+            animation: beamPulse 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes beamPulse {
+            0% { opacity: 0.75; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1.03); }
+        }
+
+        /* Opening State Class */
+        .stage-open .curtain-left {
+            transform: translateX(-102%);
+        }
+        .stage-open .curtain-right {
+            transform: translateX(102%);
+        }
+        .stage-open .stage-valance {
+            transform: translateY(-100%);
+        }
+        .stage-open #stageCenterContent {
+            opacity: 0;
+            transform: scale(1.15);
+            transition: opacity 0.6s ease, transform 0.8s ease;
+        }
+
+        /* Music Floating Controller */
+        .music-btn {
+            position: fixed;
+            top: max(1.2rem, var(--sat));
+            right: max(1.2rem, var(--sar));
+            z-index: 60;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Touch input custom style overrides */
+        input[type="datetime-local"], textarea {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            font-size: 16px !important;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 relative">
+
+    <!-- Audio Element (with royalty-free audio source + fallback WebAudio synthesized piano) -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Floating Music Controls -->
+    <button id="musicToggleBtn" onclick="toggleMusic()" class="music-btn bg-slate-900/80 hover:bg-slate-900 text-rose-300 border border-rose-500/30 p-3 rounded-full shadow-2xl transition-all active:scale-95 flex items-center gap-2 text-xs font-semibold px-4">
+        <i id="musicIcon" class="fa-solid fa-music text-rose-400 animate-pulse"></i>
+        <span id="musicText">Music On</span>
+    </button>
+
+    <!-- FLOATING BACKGROUND PARTICLES -->
+    <div id="particleContainer" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- THEATRE STAGE REVEAL OVERLAY -->
+    <div id="theaterStage">
+        <!-- Spotlight Glow -->
+        <div class="spotlight"></div>
+
+        <!-- Left & Right Curtains -->
+        <div class="curtain-panel curtain-left"></div>
+        <div class="curtain-panel curtain-right"></div>
+        <div class="stage-valance"></div>
+
+        <!-- Center Stage Interactive Card -->
+        <div id="stageCenterContent" class="z-[55] text-center p-6 max-w-sm mx-auto flex flex-col items-center">
+            <div class="mb-6 relative">
+                <div class="absolute -inset-4 bg-rose-500/20 rounded-full blur-xl animate-pulse"></div>
+                <button onclick="revealStage()" class="relative group w-24 h-24 bg-gradient-to-tr from-rose-600 via-pink-600 to-rose-400 rounded-full flex items-center justify-center text-white text-4xl shadow-[0_0_50px_rgba(244,63,94,0.6)] border-2 border-amber-300/60 transform transition-transform duration-300 group-hover:scale-110 active:scale-95 pulse-heart">
+                    <i class="fa-solid fa-heart text-white drop-shadow-md"></i>
+                </button>
+            </div>
+
+            <h2 class="cinzel text-amber-200 text-2xl font-bold tracking-widest uppercase mb-2 drop-shadow-lg">
+                A Surprise Awaits
+            </h2>
+            <p class="text-rose-200/90 text-sm mb-6 font-medium">
+                A quiet moment kept especially for you...
+            </p>
+
+            <button onclick="revealStage()" class="bg-gradient-to-r from-amber-400 via-rose-500 to-pink-500 text-white font-extrabold text-sm py-3.5 px-8 rounded-full shadow-lg shadow-rose-950/60 border border-amber-200/40 tracking-wider uppercase transition-transform active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-sparkles text-amber-200"></i> Tap to Open Stage <i class="fa-solid fa-sparkles text-amber-200"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="w-full max-w-md z-10 relative my-auto">
+
+        <!-- Card 0: Heartfelt Letter -->
+        <div id="letterCard" class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl text-center fade-in">
+            <!-- Header Icon -->
+            <div class="mb-3 inline-flex items-center justify-center w-16 h-16 bg-rose-100 text-rose-500 rounded-full shadow-inner pulse-heart">
+                <i class="fa-solid fa-envelope-open-text text-3xl"></i>
+            </div>
+
+            <!-- Header Badge -->
+            <div>
+                <span class="inline-block px-3.5 py-1 bg-rose-100/90 text-rose-600 rounded-full text-xs font-bold tracking-wider uppercase mb-3">
+                    A letter for you 💌
+                </span>
+            </div>
+
+            <h1 class="text-2xl font-extrabold text-slate-800 mb-4 tracking-tight">
+                Hey there...
+            </h1>
+
+            <!-- Formatted Letter Text Container -->
+            <div class="letter-paper rounded-2xl p-5 text-left mb-6 space-y-3.5 text-slate-700 text-sm leading-relaxed shadow-inner">
+                <p>
+                    hi, there’s something i’ve been wanting to tell u, lately i’ve been having these feelings na di na bago sakin— yes, i’ve already felt this feeling before and i think it’s time i became honest about it.
+                </p>
+                <p>
+                    i like u, and it’s not just something i wanna say for the sake of saying it. i genuinely wanna get to know u more and see where things could go between us. i’m interested in u romantically, and my intentions are sincere.
+                </p>
+                <p>
+                    i’m not saying this to pressure u into feeling the same way. i just want u to know how i feel, and i’d rather be honest with u than keep wondering what could happen if i took the chance— the risk.
+                </p>
+                <p>
+                    whatever ur response may be, i’ll respect it. i just wanted to give u the chance to know how genuine i am about this.
+                </p>
+            </div>
+
+            <button onclick="goToProposal()" class="w-full bg-gradient-to-r from-rose-500 to-pink-500 active:from-rose-600 active:to-pink-600 text-white font-extrabold text-base py-4 px-8 rounded-2xl shadow-lg shadow-rose-300/50 transition-transform active:scale-95 flex items-center justify-center gap-2">
+                A question for you... ✨ <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Card 1: Proposal Screen -->
+        <div id="confessionCard" class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl text-center hidden">
+            <!-- Header Icon -->
+            <div class="mb-4 inline-flex items-center justify-center w-20 h-20 bg-rose-100 text-rose-500 rounded-full shadow-inner pulse-heart">
+                <i class="fa-solid fa-heart text-4xl"></i>
+            </div>
+
+            <h1 id="headline" class="text-2xl font-extrabold text-slate-800 mb-2 tracking-tight">
+                So...
+            </h1>
+
+            <h2 id="questionText" class="text-2xl sm:text-3xl font-extrabold text-rose-600 mb-6 handwritten">
+                Would you be willing to give us a chance? 💖
+            </h2>
+
+            <!-- Dynamic Playful Hint Box -->
+            <div class="h-6 mb-2">
+                <p id="playfulHint" class="text-xs font-bold text-rose-500 transition-all opacity-0">
+                    Nice try! But "No" isn't an option 😉
+                </p>
+            </div>
+
+            <!-- Action Buttons Container -->
+            <div id="buttonArea" class="relative min-h-[160px] flex flex-col items-center justify-center gap-3">
+                <button id="yesBtn" onclick="handleYesClick()" class="w-full bg-gradient-to-r from-rose-500 to-pink-500 active:from-rose-600 active:to-pink-600 text-white font-extrabold text-lg py-4 px-8 rounded-2xl shadow-lg shadow-rose-300/50 transition-transform active:scale-95 z-20">
+                    Yes, I'd love to! 💖
+                </button>
+
+                <button id="noBtn" class="btn-dodge w-full bg-slate-200/90 active:bg-slate-300 text-slate-700 font-bold text-base py-3.5 px-8 rounded-2xl shadow transition-all z-10">
+                    No 🙈
+                </button>
+            </div>
+        </div>
+
+        <!-- Card 2: Celebration & Interactive Date Planner -->
+        <div id="celebrationCard" class="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl text-center hidden">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full shadow-inner mb-3 pulse-heart">
+                <i class="fa-solid fa-face-smile-beam text-4xl"></i>
+            </div>
+
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-1">
+                YAY! Best decision ever! 🎉
+            </h1>
+            <p class="text-rose-500 font-bold text-2xl mb-5 handwritten">
+                Let's plan our date together!
+            </p>
+
+            <!-- Interactive Date Picker Section -->
+            <div class="text-left mb-5">
+                <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2.5">
+                    1. Pick an activity you'd love:
+                </label>
+                <div class="grid grid-cols-1 gap-2.5" id="activityList">
+                    <button type="button" onclick="selectActivity(this, 'Coffee & Chika ☕')" class="activity-btn w-full p-3 rounded-2xl border-2 border-slate-200 flex items-center gap-3 active:scale-[0.98] transition-all">
+                        <span class="p-2.5 bg-rose-100 text-rose-500 rounded-xl"><i class="fa-solid fa-mug-hot text-lg"></i></span>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-800 text-sm">Coffee & Chika</div>
+                            <div class="text-xs text-slate-500">Cozy drinks & good talk</div>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="selectActivity(this, 'Dinner & Walk 🍹')" class="activity-btn w-full p-3 rounded-2xl border-2 border-slate-200 flex items-center gap-3 active:scale-[0.98] transition-all">
+                        <span class="p-2.5 bg-purple-100 text-purple-500 rounded-xl"><i class="fa-solid fa-utensils text-lg"></i></span>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-800 text-sm">Dinner & Walk</div>
+                            <div class="text-xs text-slate-500">Delicious food & night stroll</div>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="selectActivity(this, 'Movie Night 🍿')" class="activity-btn w-full p-3 rounded-2xl border-2 border-slate-200 flex items-center gap-3 active:scale-[0.98] transition-all">
+                        <span class="p-2.5 bg-amber-100 text-amber-500 rounded-xl"><i class="fa-solid fa-film text-lg"></i></span>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-800 text-sm">Movie Night</div>
+                            <div class="text-xs text-slate-500">Popcorn & a nice film</div>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="selectActivity(this, 'Boba & Catch-up 🧋')" class="activity-btn w-full p-3 rounded-2xl border-2 border-slate-200 flex items-center gap-3 active:scale-[0.98] transition-all">
+                        <span class="p-2.5 bg-pink-100 text-pink-500 rounded-xl"><i class="fa-solid fa-glass-water text-lg"></i></span>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-800 text-sm">Boba & Catch-up</div>
+                            <div class="text-xs text-slate-500">Sweet drinks & fun vibes</div>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="selectActivity(this, 'Surprise Me! ✨')" class="activity-btn w-full p-3 rounded-2xl border-2 border-slate-200 flex items-center gap-3 active:scale-[0.98] transition-all">
+                        <span class="p-2.5 bg-indigo-100 text-indigo-500 rounded-xl"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i></span>
+                        <div class="text-left">
+                            <div class="font-bold text-slate-800 text-sm">Surprise Me!</div>
+                            <div class="text-xs text-slate-500">You plan it all, I'm ready!</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date & Time Picker -->
+            <div class="text-left mb-5">
+                <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2" for="dateTime">
+                    2. Pick a Day & Time (Optional):
+                </label>
+                <input type="datetime-local" id="dateTime" class="w-full p-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-slate-700 bg-white/80 shadow-sm">
+            </div>
+
+            <!-- Optional Personal Note -->
+            <div class="text-left mb-6">
+                <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2" for="replyNote">
+                    3. Personal Note (Optional):
+                </label>
+                <textarea id="replyNote" rows="2" placeholder="Your favorite snacks, places you want to visit, or a message back..." class="w-full p-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm text-slate-700 bg-white/80 shadow-sm"></textarea>
+            </div>
+
+            <!-- Send Response Action -->
+            <button id="sendReplyBtn" onclick="sendReply()" class="w-full bg-slate-900 active:bg-black text-white font-extrabold py-4 px-6 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95 text-base">
+                <i class="fa-solid fa-paper-plane"></i> Send Response 💌
+            </button>
+
+            <div id="sentFeedback" class="hidden mt-4 p-3.5 bg-emerald-100/90 text-emerald-800 rounded-2xl text-xs font-bold leading-relaxed">
+                ✨ Opening your mail app to send your reply!
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Music State & Audio Engine
+        let isMusicPlaying = false;
+        let webAudioContext = null;
+        let synthInterval = null;
+        const bgAudio = document.getElementById('bgMusic');
+
+        function startMusic() {
+            // Try standard audio element first
+            bgAudio.volume = 0.45;
+            const playPromise = bgAudio.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isMusicPlaying = true;
+                    updateMusicUI(true);
+                }).catch(() => {
+                    // Fallback to Web Audio API synthesized soft romantic chords
+                    initWebAudioSynth();
+                });
+            }
+        }
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                if (bgAudio && !bgAudio.paused) bgAudio.pause();
+                if (synthInterval) clearInterval(synthInterval);
+                isMusicPlaying = false;
+                updateMusicUI(false);
+            } else {
+                startMusic();
+            }
+        }
+
+        function updateMusicUI(playing) {
+            const icon = document.getElementById('musicIcon');
+            const text = document.getElementById('musicText');
+
+            if (playing) {
+                icon.className = "fa-solid fa-compact-disc text-rose-400 animate-spin";
+                text.textContent = "Music On";
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-slate-400";
+                text.textContent = "Muted";
+            }
+        }
+
+        // Web Audio API Synthesizer (Reliable offline romantic piano chord loop)
+        function initWebAudioSynth() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                webAudioContext = new AudioContext();
+                isMusicPlaying = true;
+                updateMusicUI(true);
+
+                const chords = [
+                    [261.63, 329.63, 392.00, 493.88], // Cmaj7
+                    [220.00, 261.63, 329.63, 392.00], // Am7
+                    [174.61, 220.00, 261.63, 329.63], // Fmaj7
+                    [196.00, 246.94, 293.66, 349.23]  // G7
+                ];
+
+                let chordIdx = 0;
+                function playChord() {
+                    if (!isMusicPlaying || !webAudioContext) return;
+                    const now = webAudioContext.currentTime;
+                    const chord = chords[chordIdx];
+
+                    chord.forEach((freq, i) => {
+                        const osc = webAudioContext.createOscillator();
+                        const gain = webAudioContext.createGain();
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + (i * 0.12));
+
+                        gain.gain.setValueAtTime(0, now);
+                        gain.gain.linearRampToValueAtTime(0.04, now + (i * 0.12) + 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+
+                        osc.connect(gain);
+                        gain.connect(webAudioContext.destination);
+
+                        osc.start(now + (i * 0.12));
+                        osc.stop(now + 3.4);
+                    });
+
+                    chordIdx = (chordIdx + 1) % chords.length;
+                }
+
+                playChord();
+                synthInterval = setInterval(playChord, 2800);
+            } catch(e) {
+                console.log("Audio synthesis not supported");
+            }
+        }
+
+        // Stage Reveal Action
+        function revealStage() {
+            const stage = document.getElementById('theaterStage');
+            stage.classList.add('stage-open');
+            document.body.classList.add('revealed');
+
+            // Play background music on gesture
+            startMusic();
+
+            setTimeout(() => {
+                stage.style.opacity = '0';
+                stage.style.visibility = 'hidden';
+            }, 1200);
+        }
+
+        // Transition from Letter to Proposal
+        function goToProposal() {
+            const letterCard = document.getElementById('letterCard');
+            const confessionCard = document.getElementById('confessionCard');
+
+            letterCard.classList.add('hidden');
+            confessionCard.classList.remove('hidden');
+            confessionCard.classList.add('fade-in');
+        }
+
+        // Floating Heart Particles
+        function createParticles() {
+            const container = document.getElementById('particleContainer');
+            const icons = ['fa-heart', 'fa-sparkles', 'fa-star', 'fa-heart'];
+            const colors = ['#f43f5e', '#ec4899', '#f472b6', '#fb7185'];
+
+            for (let i = 0; i < 18; i++) {
+                const particle = document.createElement('i');
+                const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                particle.className = `fa-solid ${randomIcon} bg-particle`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 7}s`;
+                particle.style.animationDuration = `${5 + Math.random() * 5}s`;
+                particle.style.fontSize = `${14 + Math.random() * 16}px`;
+                particle.style.color = colors[Math.floor(Math.random() * colors.length)];
+                container.appendChild(particle);
+            }
+        }
+
+        // Touch-Optimized Dodging "No" Button
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const playfulHint = document.getElementById('playfulHint');
+        let dodgeCount = 0;
+        let yesScale = 1;
+
+        const hintMessages = [
+            "Are you sure? 🤔",
+            "Think again! 💭",
+            "Pretty please? 🥺",
+            "Nice try! 😉",
+            "You can't catch me! 🏃‍♂️💨",
+            "Give it another shot! 💕"
+        ];
+
+        function moveNoButton(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            dodgeCount++;
+
+            // Grow the Yes button on every dodge
+            yesScale += 0.12;
+            yesBtn.style.transform = `scale(${yesScale})`;
+            
+            // Cycle cheeky messages
+            const messageIndex = (dodgeCount - 1) % hintMessages.length;
+            playfulHint.textContent = hintMessages[messageIndex];
+            playfulHint.style.opacity = "1";
+
+            const container = document.getElementById('buttonArea');
+            const rect = container.getBoundingClientRect();
+
+            // Safe dodge offsets within screen/container bounds
+            const maxX = rect.width - noBtn.offsetWidth;
+            const maxY = rect.height - noBtn.offsetHeight;
+
+            const randomX = Math.max(8, Math.min(Math.random() * maxX, maxX - 8));
+            const randomY = Math.max(8, Math.min(Math.random() * maxY, maxY - 8));
+
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = `${randomX}px`;
+            noBtn.style.top = `${randomY}px`;
+
+            // Shrink and dim the No button as attempts increase
+            if (dodgeCount > 3) {
+                const shrinkFactor = Math.max(0.5, 1 - (dodgeCount * 0.08));
+                noBtn.style.transform = `scale(${shrinkFactor})`;
+                noBtn.style.opacity = '0.7';
+            }
+        }
+
+        // Attach touch & mouse events
+        noBtn.addEventListener('touchstart', moveNoButton, { passive: false });
+        noBtn.addEventListener('mousedown', moveNoButton);
+
+        // Celebration & Fullscreen Heart Confetti
+        function handleYesClick() {
+            const confessionCard = document.getElementById('confessionCard');
+            const celebrationCard = document.getElementById('celebrationCard');
+
+            confessionCard.classList.add('hidden');
+            celebrationCard.classList.remove('hidden');
+            celebrationCard.classList.add('fade-in');
+
+            triggerConfetti();
+        }
+
+        function triggerConfetti() {
+            const duration = 3.5 * 1000;
+            const animationEnd = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 6,
+                    angle: 60,
+                    spread: 60,
+                    origin: { x: 0, y: 0.7 },
+                    colors: ['#f43f5e', '#ec4899', '#fbcfe8', '#fb7185']
+                });
+                confetti({
+                    particleCount: 6,
+                    angle: 120,
+                    spread: 60,
+                    origin: { x: 1, y: 0.7 },
+                    colors: ['#f43f5e', '#ec4899', '#fbcfe8', '#fb7185']
+                });
+
+                if (Date.now() < animationEnd) {
+                    requestAnimationFrame(frame);
+                }
+            })();
+        }
+
+        // Activity Selection Logic
+        let selectedActivity = "Coffee & Chika ☕";
+
+        function selectActivity(element, activityName) {
+            selectedActivity = activityName;
+            
+            document.querySelectorAll('.activity-btn').forEach(btn => {
+                btn.classList.remove('border-rose-500', 'bg-rose-50/90');
+                btn.classList.add('border-slate-200');
+            });
+
+            element.classList.remove('border-slate-200');
+            element.classList.add('border-rose-500', 'bg-rose-50/90');
+        }
+
+        // mailto Deep-Linking
+        function sendReply() {
+            const noteText = document.getElementById('replyNote').value;
+            const dateTimeVal = document.getElementById('dateTime').value;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipientEmail = urlParams.get('to') || 'your-email@example.com';
+
+            let formattedDateTime = "Flexible / Up to you!";
+            if (dateTimeVal) {
+                const dateObj = new Date(dateTimeVal);
+                formattedDateTime = dateObj.toLocaleString([], {
+                    dateStyle: 'full',
+                    timeStyle: 'short'
+                });
+            }
+
+            const subject = encodeURIComponent("YES! Let's give us a chance! ❤️");
+            const body = encodeURIComponent(
+                `Hey!\n\nI read your letter and I said YES! 💕\n\n` +
+                `✨ Activity Chosen: ${selectedActivity}\n` +
+                `📅 Preferred Date & Time: ${formattedDateTime}\n` +
+                (noteText ? `📝 Note: "${noteText}"\n\n` : '\n') +
+                `Can't wait!`
+            );
+
+            document.getElementById('sentFeedback').classList.remove('hidden');
+
+            setTimeout(() => {
+                window.location.href = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+            }, 300);
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            createParticles();
+            const firstActivity = document.querySelector('.activity-btn');
+            if (firstActivity) selectActivity(firstActivity, 'Coffee & Chika ☕');
+        };
+    </script>
+</body>
+</html>
